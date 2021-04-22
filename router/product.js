@@ -11,7 +11,14 @@ router.get("/", (req, res) => {
             res.json({
                 msg : "get products",
                 count : products.length,
-                productInfo : products
+                productInfo : products.map(product => {
+                    return{
+                        id : product._id,
+                        name : product.name,
+                        price : product.price,
+                        data : product.createdAt
+                    }
+                })
             })
         })
         .catch(err => {
@@ -29,9 +36,19 @@ router.get("/:productId", (req, res) => {
     productModel
         .findById(id)
         .then(product => {
+            if(!product){
+                return res.status(404).json({
+                    msg : "no product id"
+                })
+            }
             res.json({
                 msg : "get product",
-                productInfo : product
+                productInfo : {
+                    id : product._id,
+                    name : product.name,
+                    price : product.price,
+                    data : product.createdAt
+                }
             })
         })
         .catch(err => {
@@ -46,7 +63,7 @@ router.post("/", (req, res) => {
 
     const newProduct = new productModel(
         {
-            name : req.body.prductName,
+            name : req.body.productName,
             price : req.body.productPrice
         }
     )
@@ -56,7 +73,13 @@ router.post("/", (req, res) => {
         .then(product => {
             res.json({
                 msg : "register product",
-                productInfo : product
+                productInfo : {
+                    id : product._id,
+                    name : product.name,
+                    price : product.price,
+                    data : product.createdAt
+
+                }
             })
         })
         .catch(err => {
@@ -79,7 +102,13 @@ router.patch("/:productId", (req, res) => {
 
     productModel
         .findByIdAndUpdate(id, {$set : updateOps})
-        .then(() => {
+        .then((product) => {
+            if(!product){
+                return res.status(404).json({
+                    msg : "no product id"
+                })
+
+            }
             res.json({
                 msg : "update product by " + id
             })
@@ -115,7 +144,12 @@ router.delete("/:productId", (req, res) => {
 
     productModel
         .findByIdAndRemove(id)
-        .then(() => {
+        .then((product) => {
+            if(!product){
+                return res.status(500).json({
+                    msg : "no product id"
+                })
+            }
             res.json({
                 msg : "delete product by " + id
             })
