@@ -1,59 +1,14 @@
 const express = require('express')
-const userModel = require('../model/user')
 const router = express.Router()
-const bcrypt = require('bcryptjs')
+
+const {
+    users_signup_user,
+    users_login_user
+} = require('../controller/user')
 
 // 회원가입
-router.post("/signup", (req, res) => {
-
-    userModel
-        .findOne({email : req.body.userEmail})
-        .then(user => {
-            if(user){
-                return res.json({
-                    msg : "user existed, please other email"
-                })
-            }
-            else{
-                bcrypt.hash(req.body.password, 10, (err, hash) => {
-                    if(err){
-                        return res.status(404).json({
-                            msg : err.message
-                        })
-                    }
-                    const newUser = new userModel({
-                        name : req.body.userName,
-                        email : req.body.userEmail,
-                        password : hash
-                    })
-
-                    newUser
-                        .save()
-                        .then(user => {
-                            res.json({
-                                msg : "registered user",
-                                userInfo : user
-                            })
-                        })
-                        .catch(err => {
-                            res.status(500).json({
-                                msg : err.message
-                            })
-                        })
-                })
-            }
-        })
-        .catch(err => {
-            res.status(500).json({
-                msg : err.message
-            })
-        })
-
-
-})
+router.post("/signup", users_signup_user)
 
 // 로그인
-router.post("/login", (req, res) => {
-
-})
+router.post("/login", users_login_user)
 module.exports = router
